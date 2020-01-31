@@ -16,7 +16,7 @@
         </li>
       </ul>
       <input placeholder="Nichtterminale hinzufügen" v-model="nonTerminalEdit" />
-      <button @click="addNonTerminal">OK</button>
+      <button @click="addNonTerminal(nonTerminalEdit)">OK</button>
     </div>
 
     <div class="input-group">
@@ -27,7 +27,7 @@
         </li>
       </ul>
       <input placeholder="Terminale hinzufügen" v-model="terminalEdit" />
-      <button @click="addTerminal">OK</button>
+      <button @click="addTerminal(terminalEdit)">OK</button>
     </div>
 
     <div class="input-group">

@@ -23,6 +23,17 @@ const TASKS = [{
     }
   },
   {
+    description: "E-Mail-Adressen (Buchstaben A-C genügen) →Achtung: Check stößt evtl. an seine Grenzen…",
+    checks: {
+      "@": false,
+      "@ABC.CC": false,
+      "CAB": false,
+      "CAB@ABC": false,
+      "CAB@ABC.AC": true,
+      "CAB@ACAB.CC": true,
+    }
+  },
+  {
     description: "[Probeklausur-Aufgabe] Geben Sie eine Grammatik an, mit der genau die Binärzahlen ohne führende Nullen erzeugt werden können, die durch 4 teilbar sind. \nHinweis: Durch 4 teilbare Binärzahlen sind anhand der letzten beiden Binärziffern erkennbar.",
     checks: {
       "00": false,
@@ -53,9 +64,8 @@ var app = new Vue({
     ],
     terminals: ["1", "0"],
     nonTerminals: ["A", "B"],
-    start: "A", //TODO
-    // task: TASKS[0],
-    taskIndex: 0, //TODO
+    start: "A",
+    taskIndex: 0,
     checkResults: [],
     allPassed: false,
   },
@@ -63,26 +73,24 @@ var app = new Vue({
     // this.updateCheckResults();
   },
   methods: {
-    addTerminal() {
-      let n = this.terminalEdit.toUpperCase();
-      if (this.terminalEdit.length != 1) {
-        // alert("Muss Länge 1 haben!");
-        //TODO dedupe
-        this.terminalEdit.split("").forEach(c => this.terminals.push(c.toUpperCase()));
+    addTerminal(terminal) {
+      let n = terminal.toUpperCase();
+      if (terminal.length != 1) {
+        terminal.split("").forEach(c => this.addTerminal(c));
       } else if (this.nonTerminals.includes(n)) {
-        alert("Schon als Terminalsymbol festgelegt");
+        alert(n + ": Schon als Terminalsymbol festgelegt");
       } else {
         if (!this.terminals.includes(n))
           this.terminals.push(n);
       }
       this.terminalEdit = "";
     },
-    addNonTerminal() {
-      let n = this.nonTerminalEdit.toUpperCase();
-      if (this.nonTerminalEdit.length != 1) {
-        alert("Muss Länge 1 haben!");
+    addNonTerminal(nonTerminal) {
+      let n = nonTerminal.toUpperCase();
+      if (nonTerminal.length != 1) {
+        nonTerminal.split("").forEach(c => this.addNonTerminal(c));
       } else if (this.terminals.includes(n)) {
-        alert("Schon als Terminalsymbol festgelegt");
+        alert(n + ": Schon als Terminalsymbol festgelegt");
       } else {
         if (!this.nonTerminals.includes(n))
           this.nonTerminals.push(n);
@@ -199,6 +207,8 @@ var app = new Vue({
       this.terminals = [];
       this.nonTerminals = [];
       this.start = "?";
+      this.checkResults = [];
+      this.allPassed = false;
     },
     nextTask() {
       this.reset();
