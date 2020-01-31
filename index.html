@@ -3,30 +3,40 @@
 <body>
   <p>© Nicolai Weitkemper 2020</p>
   <div id="app">
+    <h1>Aufgabe</h1>
+    <p>{{task.description}}</p>
+
     <div class="input-group">
       <h1>Nichtterminale</h1>
       <ul>
-        <li v-for="nonTerminal in nonTerminals">{{nonTerminal}}</li>
+        <li v-for="nonTerminal in nonTerminals">{{nonTerminal}}
+          <button @click="remove('nonTerminal', nonTerminal)">❌</button>
+
+          <button v-if="nonTerminal != start" @click="start = nonTerminal">als Startsymbol festlegen</button>
+        </li>
       </ul>
-      <h3>Nichtterminale hinzufügen</h3>
-      <input placeholder="Nichtterminale" v-model="nonTerminalEdit" />
+      <input placeholder="Nichtterminale hinzufügen" v-model="nonTerminalEdit" />
       <button @click="addNonTerminal">OK</button>
     </div>
 
     <div class="input-group">
       <h1>Terminale</h1>
       <ul>
-        <li v-for="terminal in terminals">{{terminal}}</li>
+        <li v-for="terminal in terminals">{{terminal}}
+          <button @click="remove('terminal', terminal)">❌</button>
+        </li>
       </ul>
-      <h3>Terminale hinzufügen</h3>
-      <input placeholder="Terminale" v-model="terminalEdit" />
+      <input placeholder="Terminale hinzufügen" v-model="terminalEdit" />
       <button @click="addTerminal">OK</button>
     </div>
 
     <div class="input-group">
       <h1>Regeln</h1>
       <ul>
-        <li v-for="r in displayRules">{{r}}</li>
+        <li v-for="r in displayRules">
+          {{r}}
+          <button @click="remove('rule', terminal)">❌</button>
+        </li>
       </ul>
       <h3>Regel hinzufügen</h3>
       <input placeholder="von" v-model="ruleEditFrom" />
@@ -36,11 +46,14 @@
 
     <h1>Checks</h1>
     <ul>
-      <li v-for="result in checkResults">{{result.check}}: SOLL:{{result.expectedResult}} IST:{{result.result}}</li>
+      <li v-for="result in checkResults">{{result.check}}: SOLL:{{result.expectedResult ? '✓' : '❌'}} IST:{{result.result ? '✓' : '❌'}} → {{(result.result == result.expectedResult) ? '✓' : '❌'}}</li>
     </ul>
+
+    <button v-if="allPassed" @click="nextTask">nächste Aufgabe</button>
   </div>
 </body>
 
-<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script> -->
+<script src="vue.js"></script>
 
 <script src="script.js"></script>

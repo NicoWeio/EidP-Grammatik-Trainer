@@ -3,12 +3,21 @@ Array.prototype.getRandom = function() {
 }
 
 const TASKS = [{
-  description: "Soll alle Binär-Zahlen matchen, die durch 4 teilbar sind",
-  checks: {
-    "100": true,
-    "0100": false,
+    description: "Beliebig lange Folgen von ABC",
+    checks: {
+      "A": false,
+      "ABCABCABC": true,
+      "ABC": true,
+    }
+  },
+  {
+    description: "Soll alle Binär-Zahlen matchen, die durch 4 teilbar sind (inklusive 0)",
+    checks: {
+      "100": true,
+      "0100": false,
+    }
   }
-}];
+];
 
 
 var app = new Vue({
@@ -25,28 +34,36 @@ var app = new Vue({
     terminals: ["1", "0"],
     nonTerminals: ["A", "B"],
     start: "A", //TODO
-    task: TASKS[0],
+    // task: TASKS[0],
+    taskIndex: 0,
     checkResults: [],
+    allPassed: false,
   },
   mounted() {
     this.updateCheckResults();
   },
   methods: {
     addTerminal() {
+      let n = this.terminalEdit.toUpperCase();
       if (this.terminalEdit.length != 1) {
         alert("Muss Länge 1 haben!");
+      } else if (this.nonTerminals.includes(n)) {
+        alert("Schon als Terminalsymbol festgelegt");
       } else {
-        if (!this.terminals.includes(this.terminalEdit.toUpperCase()))
-          this.terminals.push(this.terminalEdit.toUpperCase());
+        if (!this.terminals.includes(n))
+          this.terminals.push(n);
       }
       this.terminalEdit = "";
     },
     addNonTerminal() {
+      let n = this.nonTerminalEdit.toUpperCase();
       if (this.nonTerminalEdit.length != 1) {
         alert("Muss Länge 1 haben!");
+      } else if (this.terminals.includes(n)) {
+        alert("Schon als Terminalsymbol festgelegt");
       } else {
-        if (!this.nonTerminals.includes(this.nonTerminalEdit.toUpperCase()))
-          this.nonTerminals.push(this.nonTerminalEdit.toUpperCase());
+        if (!this.nonTerminals.includes(n))
+          this.nonTerminals.push(n);
       }
       this.nonTerminalEdit = "";
     },
@@ -116,6 +133,18 @@ var app = new Vue({
       }
       // return r;
       this.checkResults = r;
+
+      this.allPassed = r.every(c => c.result == c.expectedResult);
+    },
+    reset() {
+      this.rules = {};
+      this.terminals = [];
+      this.nonTerminals = [];
+      this.start = "?";
+    },
+    nextTask() {
+      this.reset();
+      this.taskIndex++;
     }
   },
   computed: {
@@ -126,6 +155,10 @@ var app = new Vue({
         dr.push(from + " → " + to.map(v => (v ? v : 'ɛ')).join(' | '));
       }
       return dr;
+    },
+    task() {
+      if (!TASKS[this.taskIndex]) alert("Sorry, das waren alle Aufgaben. Gute Arbeit! :)")
+      return TASKS[this.taskIndex];
     }
   }
 });
