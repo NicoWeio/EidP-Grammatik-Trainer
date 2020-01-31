@@ -1,0 +1,46 @@
+<meta charset="UTF-8" />
+
+<body>
+  <p>© Nicolai Weitkemper 2020</p>
+  <div id="app">
+    <div class="input-group">
+      <h1>Nichtterminale</h1>
+      <ul>
+        <li v-for="nonTerminal in nonTerminals">{{nonTerminal}}</li>
+      </ul>
+      <h3>Nichtterminale hinzufügen</h3>
+      <input placeholder="Nichtterminale" v-model="nonTerminalEdit" />
+      <button @click="addNonTerminal">OK</button>
+    </div>
+
+    <div class="input-group">
+      <h1>Terminale</h1>
+      <ul>
+        <li v-for="terminal in terminals">{{terminal}}</li>
+      </ul>
+      <h3>Terminale hinzufügen</h3>
+      <input placeholder="Terminale" v-model="terminalEdit" />
+      <button @click="addTerminal">OK</button>
+    </div>
+
+    <div class="input-group">
+      <h1>Regeln</h1>
+      <ul>
+        <li v-for="r in displayRules">{{r}}</li>
+      </ul>
+      <h3>Regel hinzufügen</h3>
+      <input placeholder="von" v-model="ruleEditFrom" />
+      <input placeholder="zu" v-model="ruleEditTo" />
+      <button @click="addRule">OK</button>
+    </div>
+
+    <h1>Checks</h1>
+    <ul>
+      <li v-for="result in checkResults">{{result.check}}: SOLL:{{result.expectedResult}} IST:{{result.result}}</li>
+    </ul>
+  </div>
+</body>
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+<script src="script.js"></script>
