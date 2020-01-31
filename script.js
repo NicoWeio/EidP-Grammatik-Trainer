@@ -23,10 +23,13 @@ const TASKS = [{
     }
   },
   {
-    description: "Soll alle Binär-Zahlen matchen, die durch 4 teilbar sind (inklusive 0) TODO",
+    description: "[Probeklausur-Aufgabe] Geben Sie eine Grammatik an, mit der genau die Binärzahlen ohne führende Nullen erzeugt werden können, die durch 4 teilbar sind. \nHinweis: Durch 4 teilbare Binärzahlen sind anhand der letzten beiden Binärziffern erkennbar.",
     checks: {
-      "100": true,
+      "00": false,
       "0100": false,
+      "101": false,
+      "0": true,
+      "100": true,
     }
   }
 ];
