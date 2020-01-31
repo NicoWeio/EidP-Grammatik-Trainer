@@ -1,0 +1,155 @@
+<meta charset="UTF-8" />
+
+<body>
+  <div id="app">
+    <div class="input-group">
+      <h1>Nichtterminale</h1>
+      <ul>
+        <li v-for="nonTerminal in nonTerminals">{{nonTerminal}}</li>
+      </ul>
+      <h3>Nichtterminale hinzufügen</h3>
+      <input placeholder="Nichtterminale" v-model="nonTerminalEdit" />
+      <button @click="addNonTerminal">OK</button>
+    </div>
+
+    <div class="input-group">
+      <h1>Terminale</h1>
+      <ul>
+        <li v-for="terminal in terminals">{{terminal}}</li>
+      </ul>
+      <h3>Terminale hinzufügen</h3>
+      <input placeholder="Terminale" v-model="terminalEdit" />
+      <button @click="addTerminal">OK</button>
+    </div>
+
+    <div class="input-group">
+      <h1>Regeln</h1>
+      <ul>
+        <li v-for="(to, from) in rules">{{from + ' → ' + (to ? to : 'ɛ')}}</li>
+      </ul>
+      <h3>Regel hinzufügen</h3>
+      <input placeholder="von" v-model="ruleEditFrom" />
+      <input placeholder="zu" v-model="ruleEditTo" />
+      <button @click="addRule">OK</button>
+    </div>
+
+    <h1>Checks</h1>
+    <ul>
+      <li v-for="result in checkResults">{{result.check}}: SOLL:{{result.expectedResult}} IST:{{result.result}}</li>
+    </ul>
+  </div>
+</body>
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+<script>
+  Array.prototype.getRandom = function() {
+    return this[Math.floor((Math.random() * this.length))];
+  }
+
+  const TASKS = [{
+    description: "Soll alle Binär-Zahlen matchen, die durch 4 teilbar sind",
+    checks: {
+      "100": true,
+      "0100": false,
+    }
+  }];
+
+
+  var app = new Vue({
+    el: '#app',
+    data: {
+      ruleEditFrom: "",
+      ruleEditTo: "",
+      terminalEdit: "",
+      nonTerminalEdit: "",
+      rules: {
+        "A": "100"
+      },
+      terminals: ["1", "0"],
+      nonTerminals: ["A"],
+      start: "A", //TODO
+      task: TASKS[0],
+      checkResults: [],
+    },
+    mounted() {
+      this.updateCheckResults();
+    },
+    methods: {
+      addTerminal() {
+        if (this.terminalEdit.length != 1) {
+          alert("Muss Länge 1 haben!");
+        } else {
+          if (!this.terminals.includes(this.terminalEdit.toUpperCase()))
+            this.terminals.push(this.terminalEdit.toUpperCase());
+        }
+        this.terminalEdit = "";
+      },
+      addNonTerminal() {
+        if (this.nonTerminalEdit.length != 1) {
+          alert("Muss Länge 1 haben!");
+        } else {
+          if (!this.nonTerminals.includes(this.nonTerminalEdit.toUpperCase()))
+            this.nonTerminals.push(this.nonTerminalEdit.toUpperCase());
+        }
+        this.nonTerminalEdit = "";
+      },
+      addRule() {
+        if (this.ruleEditFrom.length != 1) {
+          alert("Muss Länge 1 haben!");
+          return;
+        }
+        let from = this.ruleEditFrom.toUpperCase();
+        let to = this.ruleEditTo.toUpperCase();
+        if (this.rules[from] && this.rules[from].indexOf(to) !== -1) {
+          this.rules[from].push([to]);
+        } else {
+          this.rules[from] = [to];
+        }
+        this.ruleEditFrom = "";
+        this.ruleEditTo = "";
+
+        this.updateCheckResults();
+      },
+      doCheck(check) {
+        // for (let iter = 0; iter < 1000; iter++) { // ganze Versuche
+        let s = check;
+        for (let t = 0; t < 100; t++) {
+          for (let from in this.rules) {
+            let to = this.rules[from];
+            if (s.includes(to)) {
+              s = s.replace(to, from);
+
+              console.log(s);
+              if (s == this.start) return true;
+            }
+          }
+        }
+
+
+        // }
+        return false;
+      },
+      updateCheckResults() {
+
+        // debugger;
+        let r = [];
+        for (let check in this.task.checks) {
+
+          let result = this.doCheck(check);
+
+          r.push({
+            check,
+            expectedResult: this.task.checks[check],
+            result
+          });
+        }
+        // return r;
+        this.checkResults = r;
+      }
+    },
+    computed: {
+
+    }
+  })
+</script>
