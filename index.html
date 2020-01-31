@@ -45,6 +45,7 @@
     </div>
 
     <h1>Checks</h1>
+    <p>mit Vorsicht genießen :P</p>
     <button @click="updateCheckResults">Jetzt prüfen</button>
     <ul>
       <li v-for="result in checkResults">"{{result.check}}": SOLL:{{result.expectedResult ? '✓' : '❌'}} IST:{{result.result ? '✓' : '❌'}} → {{(result.result == result.expectedResult) ? '✓' : '❌'}}</li>

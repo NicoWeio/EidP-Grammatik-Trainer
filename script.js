@@ -23,14 +23,14 @@ const TASKS = [{
     }
   },
   {
-    description: "E-Mail-Adressen (Buchstaben A-C genügen) →Achtung: Check stößt evtl. an seine Grenzen…",
+    description: "E-Mail-Adressen wie CAB@ABC.AC (Buchstaben A-C genügen) → Achtung: Check stößt evtl. an seine Grenzen…",
     checks: {
       "@": false,
       "@ABC.CC": false,
       "CAB": false,
       "CAB@ABC": false,
       "CAB@ABC.AC": true,
-      "CAB@ACAB.CC": true,
+      "BACCAB@ACAB.CC": true,
     }
   },
   {
@@ -41,6 +41,7 @@ const TASKS = [{
       "101": false,
       "0": true,
       "100": true,
+      "10100": true,
     }
   }
 ];
