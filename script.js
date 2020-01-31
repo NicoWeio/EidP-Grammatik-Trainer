@@ -11,7 +11,19 @@ const TASKS = [{
     }
   },
   {
-    description: "Soll alle Binär-Zahlen matchen, die durch 4 teilbar sind (inklusive 0)",
+    description: "Summen mit korrekten Klammern (Ziffern 1-3 genügen)",
+    checks: {
+      "1": true,
+      "2+3": true,
+      "(1+1)": true,
+      "2+(3+1)": true,
+      "2+(3+1": false,
+      "()": false,
+      "1+": false,
+    }
+  },
+  {
+    description: "Soll alle Binär-Zahlen matchen, die durch 4 teilbar sind (inklusive 0) TODO",
     checks: {
       "100": true,
       "0100": false,
@@ -27,15 +39,20 @@ var app = new Vue({
     ruleEditTo: "",
     terminalEdit: "",
     nonTerminalEdit: "",
-    rules: {
-      "A": ["100", "B"],
-      "B": ["00"],
-    },
+    rules: [{
+        from: "A",
+        to: ["100", "B"]
+      },
+      {
+        from: "B",
+        to: ["00"]
+      }
+    ],
     terminals: ["1", "0"],
     nonTerminals: ["A", "B"],
     start: "A", //TODO
     // task: TASKS[0],
-    taskIndex: 0,
+    taskIndex: 0, //TODO
     checkResults: [],
     allPassed: false,
   },
@@ -46,7 +63,9 @@ var app = new Vue({
     addTerminal() {
       let n = this.terminalEdit.toUpperCase();
       if (this.terminalEdit.length != 1) {
-        alert("Muss Länge 1 haben!");
+        // alert("Muss Länge 1 haben!");
+        //TODO dedupe
+        this.terminalEdit.split("").forEach(c => this.terminals.push(c.toUpperCase()));
       } else if (this.nonTerminals.includes(n)) {
         alert("Schon als Terminalsymbol festgelegt");
       } else {
@@ -72,31 +91,67 @@ var app = new Vue({
         alert("Muss Länge 1 haben!");
         return;
       }
-      let from = this.ruleEditFrom.toUpperCase();
-      let to = this.ruleEditTo.toUpperCase();
-      if (this.rules[from]) {
-        if (!this.rules[from].includes(to))
-          this.rules[from].push(to);
+      let newFrom = this.ruleEditFrom.toUpperCase();
+      let newTo = this.ruleEditTo.toUpperCase();
+      if (newFrom == newTo) {
+        alert("Selbstzuweisung");
+        return;
+      }
+      if (!this.nonTerminals.includes(newFrom)) {
+        alert("\"Von\"-Nichtterminalsymbol existiert nicht");
+        return;
+      }
+      let match = this.rules.find(r => r.from == newFrom);
+      if (match) {
+        if (!match.to.includes(newTo))
+          match.to.push(newTo);
       } else {
-        this.rules[from] = [to];
+        this.rules.push({
+          from: newFrom,
+          to: [newTo]
+        });
       }
       this.ruleEditFrom = "";
       this.ruleEditTo = "";
 
       // this.updateCheckResults();
     },
-    backwardsCheck(check) {
-
-      let s = check;
-      for (let t = 0; t < 100; t++) {
-        for (let from in this.rules) {
-          let to = this.rules[from];
-          if (s.includes(to)) {
-            s = s.replace(to, from);
-
-            console.log(s);
-            if (s == this.start) return true;
+    // backwardsCheck(check) {
+    //
+    //   let s = check;
+    //   for (let t = 0; t < 100; t++) {
+    //     for (let from in this.rules) {
+    //       let to = this.rules[from];
+    //       if (s.includes(to)) {
+    //         s = s.replace(to, from);
+    //
+    //         console.log(s);
+    //         if (s == this.start) return true;
+    //       }
+    //     }
+    //   }
+    //   return false;
+    // },
+    recBwCheck(check) {
+      for (let rule of this.rules) {
+        for (let singleTo of rule.to) {
+          try {
+            if (this.replaceSome(check, rule.from, singleTo)) return true;
+          } catch (e) {
+            console.warn("StackExc");
           }
+        }
+      }
+      return false;
+    },
+    replaceSome(c, from, singleTo) {
+      console.log(c);
+      let s = c.replace(singleTo, from);
+      if (c == this.start) return true;
+      if (s == c) return false;
+      for (let rule of this.rules) {
+        for (let to of rule.to) {
+          if (this.replaceSome(s, rule.from, to)) return true;
         }
       }
       return false;
@@ -105,10 +160,9 @@ var app = new Vue({
       for (let iter = 0; iter < 1000; iter++) { // ganze Versuche
         let s = this.start;
         for (let t = 0; t < 100; t++) {
-          for (let from in this.rules) {
-            let to = this.rules[from];
-            if (s.includes(from)) {
-              s = s.replace(from, to.getRandom());
+          for (let rule of this.rules) {
+            if (s.includes(rule.from)) {
+              s = s.replace(rule.from, rule.to.getRandom());
               // console.log(s);
               if (s == check) return true;
             }
@@ -125,7 +179,8 @@ var app = new Vue({
 
       let r = [];
       for (let check in this.task.checks) {
-        let result = await this.forwardCheck(check);
+        // let result = await this.forwardCheck(check);
+        let result = await this.recBwCheck(check);
         r.push({
           check,
           expectedResult: this.task.checks[check],
@@ -137,7 +192,7 @@ var app = new Vue({
       this.allPassed = r.every(c => c.result == c.expectedResult);
     },
     reset() {
-      this.rules = {};
+      this.rules = [];
       this.terminals = [];
       this.nonTerminals = [];
       this.start = "?";
@@ -153,18 +208,15 @@ var app = new Vue({
         this.nonTerminals = this.nonTerminals.filter(x => x != el);
         this.start = "?";
       } else if (type == 'rule') {
-        delete this.rules[el];
-        // Vue.set(app, 'rules', this.rules); //update manually
-        //TODO funzt nicht
+        Vue.set(app, 'rules', this.rules.filter(x => x.from != el)); //update manually
       }
     },
   },
   computed: {
     displayRules() {
       let dr = [];
-      for (let from in this.rules) {
-        let to = this.rules[from];
-        dr.push(from + " → " + to.map(v => (v ? v : 'ɛ')).join(' | '));
+      for (let rule of this.rules) {
+        dr.push(rule.from + " → " + rule.to.map(v => (v ? v : 'ɛ')).join(' | '));
       }
       return dr;
     },

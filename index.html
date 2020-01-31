@@ -1,4 +1,5 @@
 <meta charset="UTF-8" />
+<title>EidP-Grammatik-Trainer</title>
 
 <body>
   <p>© Nicolai Weitkemper 2020</p>
@@ -33,9 +34,9 @@
     <div class="input-group">
       <h1>Regeln</h1>
       <ul>
-        <li v-for="(to, from) in rules">
-          {{from + " → " + to.map(v => (v ? v : 'ɛ')).join(' | ')}}
-          <button @click="remove('rule', from)">❌</button>
+        <li v-for="rule in rules">
+          {{rule.from + " → " + rule.to.map(v => (v ? v : 'ɛ')).join(' | ')}}
+          <button @click="remove('rule', rule.from)">❌</button>
         </li>
       </ul>
       <h3>Regel hinzufügen</h3>
