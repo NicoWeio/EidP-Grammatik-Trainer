@@ -33,9 +33,9 @@
     <div class="input-group">
       <h1>Regeln</h1>
       <ul>
-        <li v-for="r in displayRules">
-          {{r}}
-          <button @click="remove('rule', terminal)">❌</button>
+        <li v-for="(to, from) in rules">
+          {{from + " → " + to.map(v => (v ? v : 'ɛ')).join(' | ')}}
+          <button @click="remove('rule', from)">❌</button>
         </li>
       </ul>
       <h3>Regel hinzufügen</h3>
@@ -45,8 +45,9 @@
     </div>
 
     <h1>Checks</h1>
+    <button @click="updateCheckResults">Jetzt prüfen</button>
     <ul>
-      <li v-for="result in checkResults">{{result.check}}: SOLL:{{result.expectedResult ? '✓' : '❌'}} IST:{{result.result ? '✓' : '❌'}} → {{(result.result == result.expectedResult) ? '✓' : '❌'}}</li>
+      <li v-for="result in checkResults">"{{result.check}}": SOLL:{{result.expectedResult ? '✓' : '❌'}} IST:{{result.result ? '✓' : '❌'}} → {{(result.result == result.expectedResult) ? '✓' : '❌'}}</li>
     </ul>
 
     <button v-if="allPassed" @click="nextTask">nächste Aufgabe</button>

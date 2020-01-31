@@ -40,7 +40,7 @@ var app = new Vue({
     allPassed: false,
   },
   mounted() {
-    this.updateCheckResults();
+    // this.updateCheckResults();
   },
   methods: {
     addTerminal() {
@@ -83,9 +83,9 @@ var app = new Vue({
       this.ruleEditFrom = "";
       this.ruleEditTo = "";
 
-      this.updateCheckResults();
+      // this.updateCheckResults();
     },
-    backwardsCheck(check) { //backward-impl.
+    backwardsCheck(check) {
 
       let s = check;
       for (let t = 0; t < 100; t++) {
@@ -101,7 +101,7 @@ var app = new Vue({
       }
       return false;
     },
-    forwardCheck(check) { // forward-impl.
+    async forwardCheck(check) {
       for (let iter = 0; iter < 1000; iter++) { // ganze Versuche
         let s = this.start;
         for (let t = 0; t < 100; t++) {
@@ -117,23 +117,23 @@ var app = new Vue({
       }
       return false;
     },
-    updateCheckResults() {
+    async updateCheckResults() {
+      if (!this.nonTerminals.includes(this.start)) {
+        alert("Kein Startsymbol festgelegt!");
+        return;
+      }
 
-      // debugger;
       let r = [];
       for (let check in this.task.checks) {
-
-        let result = this.forwardCheck(check);
-
+        let result = await this.forwardCheck(check);
         r.push({
           check,
           expectedResult: this.task.checks[check],
           result
         });
       }
-      // return r;
-      this.checkResults = r;
 
+      this.checkResults = r;
       this.allPassed = r.every(c => c.result == c.expectedResult);
     },
     reset() {
@@ -145,7 +145,19 @@ var app = new Vue({
     nextTask() {
       this.reset();
       this.taskIndex++;
-    }
+    },
+    remove(type, el) {
+      if (type == 'terminal') {
+        this.terminals = this.terminals.filter(x => x != el);
+      } else if (type == 'nonTerminal') {
+        this.nonTerminals = this.nonTerminals.filter(x => x != el);
+        this.start = "?";
+      } else if (type == 'rule') {
+        delete this.rules[el];
+        // Vue.set(app, 'rules', this.rules); //update manually
+        //TODO funzt nicht
+      }
+    },
   },
   computed: {
     displayRules() {
